@@ -26,13 +26,13 @@ export class CtxRouter<TContext extends TCtx> {
     this.beforeExecHandler = handler;
   }
 
-  async exec(method: string, path: string, ctx: TContext): Promise<TContext> {
+  async exec(ctx: TContext): Promise<TContext> {
     try {
       await this.beforeExecHandler(ctx);
-      const handler = this.routeObj[method]?.[path];
+      const handler = this.routeObj[ctx.req.method]?.[ctx.req.path];
       if (!handler) {
         throw ctxErr.general.handlerNotFound({
-          data: { method, path },
+          data: { method: ctx.req.method, path: ctx.req.path },
         });
       }
       return await handler(ctx);

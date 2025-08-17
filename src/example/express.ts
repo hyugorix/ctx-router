@@ -12,7 +12,7 @@ function getHttpCode(ctx: TCtx) {
 
 app.all("/{*any}", async (req: Request, res: Response) => {
   const ctx: TCtx = toCtx.fromExpress(req);
-  await router.exec(ctx.req.method, ctx.req.path, ctx);
+  await router.exec(ctx);
   res.type("application/json").status(getHttpCode(ctx)).send(ctx.res);
 });
 
