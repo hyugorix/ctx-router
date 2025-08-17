@@ -1,6 +1,6 @@
 {
   "name": "ctx-router",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Context Router",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
