@@ -1,0 +1,17 @@
+import { TCtx } from "../ctx/ctx.types";
+
+export async function handleBeforeExec<TContext extends TCtx>(
+  ctx: TContext
+): Promise<TContext> {
+  const reqPath = `${ctx.req.method} ${ctx.req.path}`;
+  console.log(
+    `CtxReq: [${reqPath}] | [IP: ${ctx.req.ips || ctx.req.ip}] | [TraceId: ${ctx.meta.monitor.traceId}] | [SpanId: ${ctx.meta.monitor.spanId}]`
+  );
+  console.log(
+    `CtxUser: [Session: ${ctx.user.sessionId}] | [Seq: ${ctx.user.seq}]`
+  );
+  console.log(
+    `CtxMeta: [Seq: ${ctx.meta.instance.seq}] | [Inflight: ${ctx.meta.instance.inflight}]`
+  );
+  return ctx;
+}
