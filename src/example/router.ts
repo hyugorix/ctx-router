@@ -8,7 +8,7 @@ router.handle("GET", "/health/ping", api.health.ping);
 router.handle("POST", "/user/update", api.user.update);
 router.handle("GET", "/user/detail", api.user.detail);
 
-router.onError(async (ctx, error) => {
+router.onErrorHook(async (ctx, error) => {
   console.error("Route error:", error);
   ctx.res.code = "ERROR";
   ctx.res.msg = "Something went wrong";

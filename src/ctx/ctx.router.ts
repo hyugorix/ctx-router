@@ -3,32 +3,38 @@ import { handleOnError } from "../defaultHandler/handle.onError";
 import { ctxErr, CtxError } from "./ctx.err";
 import { TCtx } from "./ctx.types";
 
-type TRouteObj<TContext> = Record<
+type TRouteObj<TContext extends TCtx> = Record<
   string,
   Record<string, (ctx: TContext) => Promise<TContext>>
 >;
+type THooks = {
+  beforeExec<TContext extends TCtx>(ctx: TContext): Promise<TContext>;
+  onError<TContext extends TCtx>(
+    ctx: TContext,
+    error: CtxError | Error | unknown
+  ): Promise<TContext>;
+  onFinally<TContext extends TCtx>(ctx: TContext): Promise<TContext>;
+};
 
 export class CtxRouter<TContext extends TCtx> {
   private routeObj: TRouteObj<TContext> = {};
-  private onErrorHandler: (
-    ctx: TContext,
-    error: CtxError | Error | unknown
-  ) => Promise<TContext> = handleOnError<TContext>;
-  private beforeExecHandler: (ctx: TContext) => Promise<TContext> =
-    handleBeforeExec<TContext>;
-  private onFinallyHandler: (ctx: TContext) => Promise<TContext> = async (
-    ctx
-  ) => {
-    return ctx;
-  };
+  private hooks: THooks;
 
-  beforeExec(handler: (ctx: TContext) => Promise<TContext>) {
-    this.beforeExecHandler = handler;
+  constructor() {
+    this.hooks = {
+      beforeExec: handleBeforeExec,
+      onError: handleOnError,
+      onFinally: async (ctx) => ctx,
+    };
+  }
+
+  beforeExecHook(handler: THooks["beforeExec"]) {
+    this.hooks.beforeExec = handler;
   }
 
   async exec(ctx: TContext): Promise<TContext> {
     try {
-      await this.beforeExecHandler(ctx);
+      await this.hooks.beforeExec(ctx);
       const handler = this.routeObj[ctx.req.method]?.[ctx.req.path];
       if (!handler) {
         throw ctxErr.general.handlerNotFound({
@@ -37,9 +43,9 @@ export class CtxRouter<TContext extends TCtx> {
       }
       return await handler(ctx);
     } catch (error) {
-      return await this.onErrorHandler(ctx, error);
+      return await this.hooks.onError(ctx, error);
     } finally {
-      await this.onFinallyHandler(ctx);
+      await this.hooks.onFinally(ctx);
     }
   }
 
@@ -52,15 +58,10 @@ export class CtxRouter<TContext extends TCtx> {
     methodRoute[path] = handler;
   }
 
-  onError(
-    handler: (
-      ctx: TContext,
-      error: CtxError | Error | unknown
-    ) => Promise<TContext>
-  ) {
-    this.onErrorHandler = handler;
+  onErrorHook(handler: THooks["onError"]) {
+    this.hooks.onError = handler;
   }
-  onFinally(handler: (ctx: TContext) => Promise<TContext>) {
-    this.onFinallyHandler = handler;
+  onFinallyHook(handler: THooks["onFinally"]) {
+    this.hooks.onFinally = handler;
   }
 }
