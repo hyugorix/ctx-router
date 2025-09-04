@@ -29,6 +29,7 @@ type CtxRes = {
   code: string;
   msg: string;
   data: { [key: string]: unknown };
+  info?: unknown;
   meta?: {
     ctxId: string;
     seq: number;
@@ -59,8 +60,10 @@ type CtxMeta = {
   monitor: {
     traceId: string;
     spanId: string;
+  };
+  log: {
     stdout: string[];
-    dbLog: string[];
+    db: string[];
   };
 };
 

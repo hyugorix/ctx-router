@@ -10,7 +10,7 @@ export async function handleOnError<TContext extends TCtx>(
     console.log("CtxError:message:", e.message);
     console.log("CtxError:data:", e.data);
     if (e.info) {
-      ctx.meta.monitor.stdout.push(JSON.stringify(e.info));
+      ctx.res.info = e.info;
     }
     if (typeof e.info === "object") {
       console.log("CtxError:info:object:", JSON.stringify(e.info));

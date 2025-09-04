@@ -5,7 +5,7 @@ const INSTANCE = {
   ID: crypto.randomBytes(5).toString("hex"),
   TRACE_ID: crypto.randomBytes(5).toString("hex"),
   CREATED_AT: new Date(),
-  SERVICE_NAME: process.env.SERVICE_NAME || "fantasy-service",
+  SERVICE_NAME: process.env.SERVICE_NAME || "my-service",
   SEQ: 0,
   INFLIGHT: 0,
   LAST_HEARTBEAT: new Date(),
@@ -71,8 +71,10 @@ function buildMeta(ctxRaw: TCtxBuild): TCtx["meta"] {
     monitor: {
       traceId: `${INSTANCE.ID}-${INSTANCE.SEQ}`,
       spanId: `${INSTANCE.ID}-${INSTANCE.SEQ}`,
+    },
+    log: {
       stdout: [],
-      dbLog: [],
+      db: [],
     },
   };
 }

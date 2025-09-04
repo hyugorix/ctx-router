@@ -1,8 +1,12 @@
 import { CtxRouter, TCtx } from "..";
 import * as api from "./api/index";
+import { ctxRedisClient } from "./config/ctx.redis.config";
 
 // Set your router
-const router = new CtxRouter<TCtx>();
+const router = new CtxRouter<TCtx>({
+  log: { capture: true },
+  stream: { redisClient: ctxRedisClient, key: "CTX:OBJ" },
+});
 
 router.handle("GET", "/health/ping", api.health.ping);
 router.handle("POST", "/user/update", api.user.update);
