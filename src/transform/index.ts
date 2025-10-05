@@ -62,6 +62,8 @@ function buildMeta(ctxRaw: TCtxBuild): TCtx["meta"] {
       createdAt: INSTANCE.CREATED_AT,
       seq: INSTANCE.SEQ,
       inflight: INSTANCE.INFLIGHT,
+      cpu: 0,
+      mem: 0,
     },
     ts: {
       in: inTime,
@@ -92,17 +94,10 @@ function buildReq(data: TCtxBuild): TCtx["req"] {
 
 function buildUser(ctxRaw: TCtxBuild): TCtx["user"] {
   const header = ctxRaw.header;
-  const clientSeq = Number(header["x-ctx-seq"]);
   return {
     id: "none",
-    role: USER_ROLE.none,
-    seq: isNaN(clientSeq) ? 0 : clientSeq,
-    sessionId: String(header["x-ctx-session-id"] || "none"),
-    deviceId: String(header["x-ctx-device-id"] || "none"),
-    deviceName: String(header["x-ctx-device-name"] || "none"),
-    appVersion: String(header["x-ctx-app-version"] || "none"),
-    os: String(header["x-ctx-os"] || "none"),
-    apiVersion: String(header["x-ctx-api-version"] || "none"),
+    role: [USER_ROLE.none],
+    scope: [],
     auth: {
       token: String(
         header["authorization"] || header["Authorization"] || "none"
@@ -122,9 +117,10 @@ function buildRes(): TCtx["res"] {
 
 function setResMeta(ctx: TCtx): void {
   const meta = ctx.meta;
+  const clientSeq = parseInt(ctx.req.header["x-ctx-seq"] || "0");
   ctx.res.meta = {
     ctxId: ctx.id,
-    seq: ctx.user.seq,
+    seq: Number.isInteger(clientSeq) ? clientSeq : 0,
     traceId: meta.monitor.traceId,
     spanId: meta.monitor.spanId,
     inTime: meta.ts.in,

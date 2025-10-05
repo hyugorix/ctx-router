@@ -11,8 +11,8 @@ export async function execute(reqData: TReqData): Promise<TResData> {
 export async function auth(ctx: TCtx): Promise<TCtx> {
   // authenticate the request, and return the context if the request is authenticated
   // await authRequest(ctx);
-  if (USER_ROLE.user === ctx.user.role) return ctx;
-  if (USER_ROLE.admin === ctx.user.role) return ctx;
+  if (ctx.user.role.includes(USER_ROLE.user)) return ctx;
+  if (ctx.user.role.includes(USER_ROLE.admin)) return ctx;
   throw ctxErr.general.notAuthorized();
 }
 

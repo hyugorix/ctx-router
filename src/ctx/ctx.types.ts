@@ -15,7 +15,10 @@ type CtxReq = {
     "x-ctx-api-version"?: string;
     "x-ctx-session-id"?: string;
     "x-ctx-seq"?: string;
+    "x-ctx-ts"?: string;
     "x-ctx-refresh-token"?: string;
+    "x-ctx-csrf"?: string;
+    "x-ctx-trace-id"?: string;
     [key: string]: string | string[] | undefined;
   };
   method: string;
@@ -49,6 +52,8 @@ type CtxMeta = {
     createdAt: Date;
     seq: number;
     inflight: number; // number of request inflight when this request came in
+    cpu: number;
+    mem: number; // mb
   };
   ts: {
     in: Date;
@@ -69,27 +74,15 @@ type CtxMeta = {
 
 type CtxUser = {
   id: string;
-  role: keyof typeof USER_ROLE;
-  deviceName: string;
-  deviceId: string;
-  os: string;
-  appVersion: string;
-  sessionId: string;
-  seq: number;
-  apiVersion: string;
+  role: Array<keyof typeof USER_ROLE>;
+  scope: string[];
   auth: { token: string; refresh: string };
 };
 
 export type TCtx = {
   id: string;
-  meta: CtxMeta;
   req: CtxReq;
   res: CtxRes;
   user: CtxUser;
+  meta: CtxMeta;
 };
-
-export interface IBaseApi {
-  auth(ctx: TCtx): Promise<TCtx>;
-  validate(ctx: TCtx): Promise<TCtx>;
-  handle(ctx: TCtx): Promise<TCtx>;
-}
